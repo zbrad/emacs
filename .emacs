@@ -74,13 +74,6 @@
 
 	  ))
 
-  ;;;;;;;;;;;
-  ;; ask before exit
-
-  (setq kill-emacs-query-functions
-     (cons (lambda () (yes-or-no-p "Really kill Emacs? "))
-                    kill-emacs-query-functions))
-
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;
   ; Misc
@@ -95,6 +88,14 @@
   (setq inhibit-startup-message t)
   (setq insert-default-directory nil)
   (show-paren-mode t)  ;; always turn parentheses mode on.
+
+  (tool-bar-mode -1)
+;  (menu-bar-mode -1)
+  (setq vc-handled-backends nil)
+  (define-key menu-bar-tools-menu [vc] nil)   ; Remove VC
+  (define-key menu-bar-tools-menu [games] nil)   ; Remove games menu
+  (setq confirm-kill-emacs 'yes-or-no-p)	 ; confirm quit
+  (setq-default indent-tabs-mode nil)	; always use spaces
 
   ;;;;;;;;;;;;;;;;;;;
   ;; Font mode settings
@@ -180,15 +181,11 @@
 ; modify coding default for shell scripts for windows
 (if (equal window-system 'w32)
 (progn
-  (modify-coding-system-alist 'file "\\.sh\\'" 'iso-latin-1-unix)
+  (setq-default prefer-coding-system 'utf-8)
+  (setq-default buffer-file-coding-system 'utf-8)
+  (modify-coding-system-alist 'file "\\.sh\\'" 'utf-8-unix)
   (modify-coding-system-alist 'file "\\.csproj\\'" 'utf-8-dos)
  ))
-
-;;;;;;;;;;
-;; put all requires together
-
-(require 'cl)
-(require 'package)
 
 (unless --batch-mode 
   (require 'font-lock)
@@ -198,10 +195,17 @@
 	font-lock-multiline t)
   (add-hook 'font-lock-mode-hook 'my-font-lock-mode-hook)
 )
+
+;;;;;;;;;;
+;; put all requires together
+
+(require 'cl)
+(require 'package)
+
 ;;;;;;;;;;;;;;;;
 ;; bootstrap use-package
-(setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(setq package-enable-at-startup nil)
 (package-initialize)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -210,37 +214,56 @@
 
 ;;;;;;;;;;;;;
 ;; load remaining packages with use-package
+
 (unless --batch-mode
   (use-package icicles :config (icy-mode 1) :ensure t))
 
-;;;;;;;;;;;;;
-;; jekyll bindings
-(use-package markdown-mode :ensure t)
-(use-package jekyll-modes :ensure t
-  :mode
-  (("\\.md\\'" . jekyll-markdown-mode)
-   ("\\.text\\'" . jekyll-markdown-mode)
-   ("\\.markdown\\'" . jekyll-markdown-mode)
-   ("\\.html\\'" . jekyll-html-mode))
+(use-package cc-mode
+  :defer t
+  :config (progn
+    (c-add-style "my-java-style" 'my-java-style)
+    (c-add-style "my-jscript-style" 'my-jscript-style)
+    (add-hook 'java-mode-hook 'my-java-mode-hook)
+    (add-hook 'jscript-mode-hook 'my-jscript-mode-hook)
+    )
 )
 
-;;;;;;;;;;
-;; yml mode
-(use-package yaml-mode :ensure t)
+;;;;;;;;;;;;;
+;; git mode
+(use-package git
+  :defer t
+  :load-path "h:/Repos/git/contrib/emacs"
+  :bind (("C-c s" . git-status))
+  :config (progn
+            (setq git-committer-email "brad_merrill@hotmail.com")
+            (setq git-committer-name "Brad Merrill")
+            )
+  )
 
-;;;;;;;;;;
-;; json mode
-(use-package json-mode :ensure t :mode "\\.json\\'")
+
+;;;;;;;;;;;;;
+;; gfm mode
+(use-package markdown-mode :ensure t
+  :mode (("\\.md\\'" . gfm-mode)
+        ("\\.html\\'" . gfm-mode))
+  )
+
+(use-package yaml-mode :ensure t
+  :mode "\\.yaml\\'"
+  )
 
 ;;;;;;;;;;;;;;;;
-;; flymake syntax checker
-(use-package flymake :ensure t)
-(use-package flymake-yaml :ensure t)
-(use-package flymake-shell :ensure t)
+;; json mode
+(use-package json-mode :ensure t
+  :mode "\\.json\\'"
+  )
 
 ;;;;;;;;;;;;;;;;
 ;; typescript checker
-(use-package tss :ensure t)
+(use-package tss :ensure t
+  :mode "\\.ts\\'"
+  )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;              C# Mode support
@@ -271,7 +294,6 @@
 
 (defun my-csharp-mode-hook ()
    (cond (window-system
-     (require 'cc-mode)
      (c-set-style "my-csharp-style")
      (setq compilation-error-regexp-alist '(
 ;C# Compiler
@@ -337,15 +359,6 @@
   (cond (window-system
 	 (c-set-style "my-jscript-style")
 	 )))
-
-(use-package cc-mode
-  :config
-  (progn
-    (c-add-style "my-java-style" my-java-style)
-    (c-add-style "my-jscript-style" my-jscript-style)
-    (add-hook 'java-mode-hook 'my-java-mode-hook)
-    (add-hook 'jscript-mode-hook 'my-jscript-mode-hook)
-    ))
 
 (use-package csharp-mode
   :ensure t
