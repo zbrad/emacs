@@ -3,7 +3,7 @@
 ;
 ; Brad Merrill
 ; mailto:brad_merrill@hotmail.com
-; Last updated: 19-Feb-2015
+; Last updated: 11-May-2017
 ;
 
 ;;;;;;;;;
@@ -25,7 +25,13 @@
   ;; otherwise. Two of them to emulate the mode line. %f for the file
   ;; name. Incredibly useful!
   ;(setq frame-title-format "Emacs: %b %+%+ %f")
-  (setq frame-title-format "%b%+ %f")
+
+  (setq default-frame-alist '(
+                              (font . "Inconsolata-14.5")
+                              (height . 40)
+                              (width . 100)
+                              (title-format . "%b%+ %f")
+                              ))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; key bindings (no package dependencies)
@@ -90,12 +96,12 @@
   (show-paren-mode t)  ;; always turn parentheses mode on.
 
   (tool-bar-mode -1)
-;  (menu-bar-mode -1)
+  ;  (menu-bar-mode -1)
   (setq vc-handled-backends nil)
-  (define-key menu-bar-tools-menu [vc] nil)   ; Remove VC
+  (define-key menu-bar-tools-menu [vc] nil)      ; Remove VC
   (define-key menu-bar-tools-menu [games] nil)   ; Remove games menu
   (setq confirm-kill-emacs 'yes-or-no-p)	 ; confirm quit
-  (setq-default indent-tabs-mode nil)	; always use spaces
+  (setq-default indent-tabs-mode nil)	         ; always use spaces
 
   ;;;;;;;;;;;;;;;;;;;
   ;; Font mode settings
@@ -106,18 +112,18 @@
     (font-lock-fontify-block (window-height)))
 
   (setq my-font-lock-face-attributes
-	'((font-lock-comment-face        "Firebrick")
-	  (font-lock-string-face         "SpringGreen4")
-	  (font-lock-keyword-face        "RoyalBlue")
-	  (font-lock-function-name-face  "Blue")
-	  (font-lock-variable-name-face  "GoldenRod")
-	  (font-lock-type-face           "DarkGoldenRod")
-	  (font-lock-constant-face       "Purple")
-	  ))
+        '((font-lock-comment-face        "Firebrick")
+          (font-lock-string-face         "SpringGreen4")
+          (font-lock-keyword-face        "RoyalBlue")
+          (font-lock-function-name-face  "Blue")
+          (font-lock-variable-name-face  "GoldenRod")
+          (font-lock-type-face           "DarkGoldenRod")
+          (font-lock-constant-face       "Purple")
+          ))
 
   (defun my-font-lock-mode-hook ()
-	       (substitute-key-definition
-		'recenter 'my-recenter (current-global-map)))
+               (substitute-key-definition
+                'recenter 'my-recenter (current-global-map)))
 
   ;;;;;;;;;;;;;
   ;; compile
@@ -132,13 +138,13 @@
   ;;
   (defun my-build-tab-stop-list (width)
     (let ((num-tab-stops (/ 80 width))
-		  (counter 1)
-		  (ls nil))
+                  (counter 1)
+                  (ls nil))
       (while (<= counter num-tab-stops)
-	(setq ls (cons (* width counter) ls))
-	(setq counter (1+ counter)))
+        (setq ls (cons (* width counter) ls))
+        (setq counter (1+ counter)))
       (set (make-local-variable 'tab-stop-list) (nreverse ls))))
-) 
+)
 
 (unless (or --batch-mode (not window-system))
   (require 'server)
@@ -204,12 +210,18 @@
 
 ;;;;;;;;;;;;;;;;
 ;; bootstrap use-package
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives
+             '("elpy" . "https://jorgenschaefer.github.io/packages/"))
+
 (setq package-enable-at-startup nil)
 (package-initialize)
+
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
+
 (require 'use-package)
 
 ;;;;;;;;;;;;;
@@ -228,22 +240,41 @@
     )
 )
 
-;;;;;;;;;;;;;
-;; git mode
-(use-package git
-  :defer t
-  :load-path "h:/Repos/git/contrib/emacs"
-  :bind (("C-c s" . git-status))
-  :config (progn
-            (setq git-committer-email "brad_merrill@hotmail.com")
-            (setq git-committer-name "Brad Merrill")
-            )
-  )
+;;;;;;;;;;;;;;
+;; trying out magit for git
 
+;; full screen magit-status
+(defadvice magit-status (around magit-fullscreen activate)
+  (window-configuration-to-register :magit-fullscreen)
+  ad-do-it
+  (delete-other-windows))
+
+;; Restore windows after exiting magit
+(defun magit-quit-session ()
+  "Restores the previous window configuration and kills the magit buffer"
+  (interactive)
+  (kill-buffer)
+  (jump-to-register :magit-fullscreen))
+
+(use-package magit
+  :ensure t
+  :defer 2
+  :diminish magit-auto-revert-mode
+  :bind (("C-c s" . magit-status))
+  :init
+  (setq magit-last-seen-setup-instructions "1.4.0")
+  :config
+  (progn
+    (bind-key "q" 'magit-quit-session magit-status-mode-map)
+    (setq git-committer-email "brad_merrill@hotmail.com")
+    (setq git-committer-name "Brad Merrill")
+    )
+  )
 
 ;;;;;;;;;;;;;
 ;; gfm mode
-(use-package markdown-mode :ensure t
+(use-package markdown-mode 
+  :ensure t
   :mode (("\\.md\\'" . gfm-mode)
         ("\\.html\\'" . gfm-mode))
   )
@@ -253,17 +284,68 @@
   )
 
 ;;;;;;;;;;;;;;;;
-;; json mode
-(use-package json-mode :ensure t
-  :mode "\\.json\\'"
-  )
-
-;;;;;;;;;;;;;;;;
 ;; typescript checker
 (use-package tss :ensure t
   :mode "\\.ts\\'"
+  :defer t
   )
 
+
+;;;;;;;;;;;;;;;;
+;; javascript mode
+(use-package js2-mode
+  :ensure t
+  :mode ("\\.js\\'" "\\.json\\'")
+  :defer t
+  :interpreter "node"
+  :config
+  (progn
+    (setq indent-tabs-mode t)
+    (setq tab-width 2)
+    )
+  )
+
+;;;;;;;;;;;;;;;
+;; css mode
+(use-package css-mode
+  :ensure t
+  :defer t
+  :mode ("\\.scss\\'" "\\.sass\\'")
+  )
+
+;;;;;;;;;;;;;;;
+;; python
+(use-package python
+  :ensure t
+  :mode ("\\.py\\'" . python-mode)
+  )
+
+(use-package elpy
+  :ensure t
+  :after python
+  :config
+  (progn
+    ;; jedi is great
+    (setq elpy-rpc-backend "jedi")
+    (setq elpy-rpc-python-command "c:/python3/python")
+    (add-hook 'python-mode-hook 'jedi:setup)
+    ))
+
+;; (use-package python
+;;   :ensure t
+;;   :mode ("\\.py" . python-mode)
+;;   :config
+;;   (use-package elpy
+;;     :ensure t
+;;     :commands elpy-enable
+;;     :config
+;;     (setq elpy-rpc-python-command "python3"
+;; 	  elpy-modules (dolist (elem '(elpy-module-highlight-indentation
+;; 				       elpy-module-yasnippet))
+;; 			 (remove elem elpy-modules)))
+;;     (elpy-use-ipython))
+;;   (elpy-enable)
+;;   (add-hook 'python-mode-hook #'smartparens-strict-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;              C# Mode support
@@ -368,3 +450,4 @@
     (c-add-style "my-csharp-style" my-csharp-style)
     (add-hook 'csharp-mode-hook 'my-csharp-mode-hook)
     ))
+
