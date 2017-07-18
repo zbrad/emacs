@@ -6,6 +6,49 @@
 ; Last updated: 11-May-2017
 ;
 
+;;;;;;;
+;; os settings (usually paths)
+;;
+
+
+;;; c:\python3\Scripts\pip install jedi flake8 importmagic autopep8
+(if (eq system-type 'windows-nt)
+    (progn
+;;      (setq python-environment-bin "c:/python3/python.exe")
+;;      (setq python-environment-directory "cd:/python3/default")
+;;      (setq python-environment-virtualenv "c:/python3/default")
+;;      (setq python-shell-interpreter "c:/python3/python.exe")
+;;      (setq python-shell-interpreter-args "-m")
+;;      (add-to-list 'exec-path "c:/msys64/usr/bin")
+;;      (add-to-list 'exec-path "c:/python3")
+;;      (add-to-list 'exec-path "c:/python3/Scripts")
+      (setq my-path-list '(
+                      "c:/emacs/bin"
+                      "c:/Program Files/Git/bin"
+                      "c:/Program Files/nodejs"
+                      "c:/msys64/mingw64/bin"
+                      "c:/msys64/usr/bin"
+                      "c:/python27"
+                      "c:/python27/Scripts"
+                      ;; "c:/python3"
+                      ;; "c:/python3/Scripts"
+                      ))
+      (setq my-path (mapconcat 'identity my-path-list ";"))
+      (setq exec-path (append exec-path my-path-list))
+      (setenv "PATH" (concat (getenv "PATH") ";" my-path))
+
+
+      (setq explicit-shell-file-name "c:/msys64/usr/bin/bash.exe")
+      (setq shell-file-name explicit-shell-file-name)
+
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      ; modify coding default for shell scripts for windows
+      (setq-default prefer-coding-system 'utf-8)
+      (setq-default buffer-file-coding-system 'utf-8)
+      (modify-coding-system-alist 'file "\\.sh\\'" 'utf-8-unix)
+      (modify-coding-system-alist 'file "\\.csproj\\'" 'utf-8-dos)
+      ))
+
 ;;;;;;;;;
 ;; capture if batch
 (defconst --batch-mode 
@@ -101,7 +144,7 @@
   (define-key menu-bar-tools-menu [vc] nil)      ; Remove VC
   (define-key menu-bar-tools-menu [games] nil)   ; Remove games menu
   (setq confirm-kill-emacs 'yes-or-no-p)	 ; confirm quit
-  (setq-default indent-tabs-mode nil)	         ; always use spaces
+;;  (setq-default indent-tabs-mode nil)	         ; always use spaces
 
   ;;;;;;;;;;;;;;;;;;;
   ;; Font mode settings
@@ -127,7 +170,7 @@
 
   ;;;;;;;;;;;;;
   ;; compile
-  (setq-default compile-command "nmake")
+  ;;(setq-default compile-command "nmake")
 
   ;;(setq-default compile-command "e:/sd_orcas/tools/razzle no_sdrefresh exec Build -cZ -x86")
   ;;(setq-default compile-command "e:/sd_lh/tools/razzle no_oacr exec Build -cZP")
@@ -136,23 +179,19 @@
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; for editing Vs tab styles
   ;;
-  (defun my-build-tab-stop-list (width)
-    (let ((num-tab-stops (/ 80 width))
-                  (counter 1)
-                  (ls nil))
-      (while (<= counter num-tab-stops)
-        (setq ls (cons (* width counter) ls))
-        (setq counter (1+ counter)))
-      (set (make-local-variable 'tab-stop-list) (nreverse ls))))
+;;  (defun my-build-tab-stop-list (width)
+;;    (let ((num-tab-stops (/ 80 width))
+;;                  (counter 1)
+;;                  (ls nil))
+;;      (while (<= counter num-tab-stops)
+;;        (setq ls (cons (* width counter) ls))
+;;        (setq counter (1+ counter)))
+;;      (set (make-local-variable 'tab-stop-list) (nreverse ls))))
+  (setq default-tab-width 4)
 )
 
 (unless (or --batch-mode (not window-system))
   (require 'server)
-  (when (and (= emacs-major-version 23)
-         (= emacs-minor-version 1)
-         (equal window-system 'w32))
-    ;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows.
-    (defun server-ensure-safe-dir (dir) "Noop" t))
   (condition-case nil
       (server-start)
     (error
@@ -175,23 +214,16 @@
 ;;(setq explicit-shell-file-name "e:/sd_orcas/tools/razzle")
 ;;(setq explicit-razzle-args '( "debug" ))
 
-(setq explicit-shell-file-name "cmdproxy")
-(setq shell-file-name "cmdproxy")
+;;(setq explicit-shell-file-name "cmdproxy")
+;;(setq shell-file-name "cmdproxy")
+;; C:\msys64\usr\bin\mintty.exe
+
+;;(setq explicit-shell-file-name "C:/msys64/usr/bin/mintty.exe")
+;;(setq shell-file-name "mintty")
 
 ;;;;;;;;;;;;;
 ;; useful if you want to set additional start options (env vars, etc)
 ;;(setq explicit-cmdproxy-args '("/c"))
- 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; modify coding default for shell scripts for windows
-(if (equal window-system 'w32)
-(progn
-  (setq-default prefer-coding-system 'utf-8)
-  (setq-default buffer-file-coding-system 'utf-8)
-  (modify-coding-system-alist 'file "\\.sh\\'" 'utf-8-unix)
-  (modify-coding-system-alist 'file "\\.csproj\\'" 'utf-8-dos)
- ))
 
 (unless --batch-mode 
   (require 'font-lock)
@@ -289,19 +321,27 @@
   :mode "\\.ts\\'"
   :defer t
   )
-
-
-;;;;;;;;;;;;;;;;
-;; javascript mode
-(use-package js2-mode
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; flycheck
+(use-package flycheck
   :ensure t
-  :mode ("\\.js\\'" "\\.json\\'")
+  :init (global-flycheck-mode)
+  )
+
+;;;;;;;;;;;;;;;;;;
+;; react jsx mode
+(use-package rjsx-mode
+  :ensure t
+  :mode ("\\.js\\'" "\\.json\\'" "\\.jsx\\'")
   :defer t
-  :interpreter "node"
   :config
   (progn
     (setq indent-tabs-mode t)
-    (setq tab-width 2)
+    (setq sgml-basic-offset 4)
+    (setq js-basic-offset 4)
+    (setq js-indent-level 4)
+    (setq js2-basic-offset 4)
+    (setq js2-bounce-indent-p t)
     )
   )
 
@@ -315,21 +355,30 @@
 
 ;;;;;;;;;;;;;;;
 ;; python
-(use-package python
-  :ensure t
-  :mode ("\\.py\\'" . python-mode)
-  )
+;(use-package python
+;  :ensure t
+;  :defer t
+;  :mode ("\\.py\\'" . python-mode)
+;  )
 
 (use-package elpy
   :ensure t
-  :after python
   :config
   (progn
-    ;; jedi is great
-    (setq elpy-rpc-backend "jedi")
     (setq elpy-rpc-python-command "c:/python3/python")
+    (setq elpy-rpc-backend "jedi")
     (add-hook 'python-mode-hook 'jedi:setup)
+    (elpy-enable)
     ))
+
+(use-package jedi
+  :preface
+  (declare-function jedi:goto-definition jedi nil)
+  (declare-function jedi:related-names jedi nil)
+  (declare-function jedi:show-doc jedi nil)
+  :bind (("C-." . jedi:goto-definition)
+	 ("C-c r" . jedi:related-names)
+	 ("C-?" . jedi:show-doc)))
 
 ;; (use-package python
 ;;   :ensure t
