@@ -1,10 +1,13 @@
-;
-; .emacs (-*-Emacs-Lisp-*-)
-;
-; Brad Merrill
-; mailto:brad_merrill@hotmail.com
-; Last updated: 11-May-2017
-;
+;;; package --- summary
+;;; .emacs (-*-Emacs-Lisp-*-)
+;;;
+;;; Commentary:
+;;; Brad Merrill
+;;; mailto:brad_merrill@hotmail.com
+;;; Last updated: 26-Jul-2017
+;;;
+
+;;; Code:
 
 ;;;;;;;
 ;; os settings (usually paths)
@@ -12,46 +15,57 @@
 
 
 ;;; c:\python3\Scripts\pip install jedi flake8 importmagic autopep8
+
 (if (eq system-type 'windows-nt)
     (progn
-;;      (setq python-environment-bin "c:/python3/python.exe")
-;;      (setq python-environment-directory "cd:/python3/default")
-;;      (setq python-environment-virtualenv "c:/python3/default")
-;;      (setq python-shell-interpreter "c:/python3/python.exe")
-;;      (setq python-shell-interpreter-args "-m")
-;;      (add-to-list 'exec-path "c:/msys64/usr/bin")
-;;      (add-to-list 'exec-path "c:/python3")
-;;      (add-to-list 'exec-path "c:/python3/Scripts")
+	  ;;      (setq python-environment-bin "c:/python3/python.exe")
+	  ;;      (setq python-environment-directory "cd:/python3/default")
+	  ;;      (setq python-environment-virtualenv "c:/python3/default")
+	  ;;      (setq python-shell-interpreter "c:/python3/python.exe")
+	  ;;      (setq python-shell-interpreter-args "-m")
+	  ;;      (add-to-list 'exec-path "c:/msys64/usr/bin")
+	  ;;      (add-to-list 'exec-path "c:/python3")
+	  ;;      (add-to-list 'exec-path "c:/python3/Scripts")
       (setq my-path-list '(
-                      "c:/emacs/bin"
-                      "c:/Program Files/Git/bin"
-                      "c:/Program Files/nodejs"
-                      "c:/msys64/mingw64/bin"
-                      "c:/msys64/usr/bin"
-                      "c:/python27"
-                      "c:/python27/Scripts"
-                      ;; "c:/python3"
-                      ;; "c:/python3/Scripts"
-                      ))
+						   "c:/emacs/bin"
+						   "c:/Program Files/Git/bin"
+						   "c:/Program Files/nodejs"
+						   "c:/msys64/mingw64/bin"
+						   "c:/msys64/usr/bin"
+						   ;; "c:/python27"
+						   ;; "c:/python27/Scripts"
+						   "c:/python3"
+						   "c:/python3/Scripts"
+						   ))
       (setq my-path (mapconcat 'identity my-path-list ";"))
       (setq exec-path (append exec-path my-path-list))
       (setenv "PATH" (concat (getenv "PATH") ";" my-path))
 
-
-      (setq explicit-shell-file-name "c:/msys64/usr/bin/bash.exe")
-      (setq shell-file-name explicit-shell-file-name)
+      (setq shell-file-name "bash.exe")
 
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      ; modify coding default for shell scripts for windows
+	  ;; modify coding default for shell scripts for windows
       (setq-default prefer-coding-system 'utf-8)
       (setq-default buffer-file-coding-system 'utf-8)
-      (modify-coding-system-alist 'file "\\.sh\\'" 'utf-8-unix)
-      (modify-coding-system-alist 'file "\\.csproj\\'" 'utf-8-dos)
+	  (setq-default pathname-coding-system 'utf-8)
+	  (setq-default default-process-coding-system '(iso-8859-1 . iso-8859-1))
+
+	  (set-buffer-file-coding-system 'utf-8)
+	  (set-default-coding-systems 'utf-8)
+
+	  (set-keyboard-coding-system 'utf-8)
+	  (set-clipboard-coding-system 'utf-8)
+	  (set-terminal-coding-system 'utf-8)
+	  (set-selection-coding-system 'utf-8)
+
+	  (modify-coding-system-alist 'process "*" 'utf-8)
+
+	  (set-file-name-coding-system 'utf-8)
       ))
 
 ;;;;;;;;;
 ;; capture if batch
-(defconst --batch-mode 
+(defconst --batch-mode
   (or noninteractive (member "--batch-mode" command-line-args))
   "True when running in batch-mode (--batch-mode command-line switch set).")
 
@@ -67,7 +81,7 @@
   ;; the state of the buffer: * if modified, % if read only, or -
   ;; otherwise. Two of them to emulate the mode line. %f for the file
   ;; name. Incredibly useful!
-  ;(setq frame-title-format "Emacs: %b %+%+ %f")
+										;(setq frame-title-format "Emacs: %b %+%+ %f")
 
   (setq default-frame-alist '(
                               (font . "Inconsolata-14.5")
@@ -100,7 +114,7 @@
   (define-key ctl-x-map "c" 'compile)
   (define-key ctl-x-map "g" 'goto-line)
 
-  (global-set-key "\C-h" 'quoted-insert)    
+  (global-set-key "\C-h" 'quoted-insert)
 
   (define-key isearch-mode-map "\C-h" 'isearch-quote-char)
   (define-key isearch-mode-map "\C-\\" 'isearch-repeat-forward)
@@ -115,18 +129,18 @@
 
   (if (not window-system)
       (progn
-	  (global-unset-key "\C-q")                          ; unbind xoff
-	  (global-unset-key "\C-s")                          ; unbind xon
+		(global-unset-key "\C-q")                          ; unbind xoff
+		(global-unset-key "\C-s")                          ; unbind xon
 
-	  (global-unset-key "\C-x\C-q")                      ; unbind xoff
-	  (global-unset-key "\C-x\C-s")                      ; unbind xon
+		(global-unset-key "\C-x\C-q")                      ; unbind xoff
+		(global-unset-key "\C-x\C-s")                      ; unbind xon
 
-	  ))
+		))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;
-  ; Misc
-  ;
+										;
+										; Misc
+										;
   (setq max-specpdl-size 1000)
   (setq auto-save-interval 200)
   (setq-default case-fold-search t)
@@ -139,12 +153,12 @@
   (show-paren-mode t)  ;; always turn parentheses mode on.
 
   (tool-bar-mode -1)
-  ;  (menu-bar-mode -1)
+										;  (menu-bar-mode -1)
   (setq vc-handled-backends nil)
   (define-key menu-bar-tools-menu [vc] nil)      ; Remove VC
   (define-key menu-bar-tools-menu [games] nil)   ; Remove games menu
   (setq confirm-kill-emacs 'yes-or-no-p)	 ; confirm quit
-;;  (setq-default indent-tabs-mode nil)	         ; always use spaces
+  ;;  (setq-default indent-tabs-mode nil)	         ; always use spaces
 
   ;;;;;;;;;;;;;;;;;;;
   ;; Font mode settings
@@ -165,8 +179,8 @@
           ))
 
   (defun my-font-lock-mode-hook ()
-               (substitute-key-definition
-                'recenter 'my-recenter (current-global-map)))
+	(substitute-key-definition
+	 'recenter 'my-recenter (current-global-map)))
 
   ;;;;;;;;;;;;;
   ;; compile
@@ -179,16 +193,16 @@
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; for editing Vs tab styles
   ;;
-;;  (defun my-build-tab-stop-list (width)
-;;    (let ((num-tab-stops (/ 80 width))
-;;                  (counter 1)
-;;                  (ls nil))
-;;      (while (<= counter num-tab-stops)
-;;        (setq ls (cons (* width counter) ls))
-;;        (setq counter (1+ counter)))
-;;      (set (make-local-variable 'tab-stop-list) (nreverse ls))))
-  (setq default-tab-width 4)
-)
+  ;;  (defun my-build-tab-stop-list (width)
+  ;;    (let ((num-tab-stops (/ 80 width))
+  ;;                  (counter 1)
+  ;;                  (ls nil))
+  ;;      (while (<= counter num-tab-stops)
+  ;;        (setq ls (cons (* width counter) ls))
+  ;;        (setq counter (1+ counter)))
+  ;;      (set (make-local-variable 'tab-stop-list) (nreverse ls))))
+  (setq-default tab-width 4)
+  )
 
 (unless (or --batch-mode (not window-system))
   (require 'server)
@@ -197,11 +211,11 @@
     (error
      (let* ((server-dir (if server-use-tcp server-auth-dir server-socket-dir)))
        (when (and server-use-tcp
-          (not (file-accessible-directory-p server-dir)))
-     (display-warning
-      'server (format "Creating %S" server-dir) :warning)
-     (make-directory server-dir t)
-     (server-start))))
+				  (not (file-accessible-directory-p server-dir)))
+		 (display-warning
+		  'server (format "Creating %S" server-dir) :warning)
+		 (make-directory server-dir t)
+		 (server-start))))
     )
   )
 
@@ -225,14 +239,14 @@
 ;; useful if you want to set additional start options (env vars, etc)
 ;;(setq explicit-cmdproxy-args '("/c"))
 
-(unless --batch-mode 
+(unless --batch-mode
   (require 'font-lock)
 
   (setq jit-lock-stealth-time 12
-	jit-lock-defer-contextually t
-	font-lock-multiline t)
+		jit-lock-defer-contextually t
+		font-lock-multiline t)
   (add-hook 'font-lock-mode-hook 'my-font-lock-mode-hook)
-)
+  )
 
 ;;;;;;;;;;
 ;; put all requires together
@@ -250,11 +264,11 @@
 (setq package-enable-at-startup nil)
 (package-initialize)
 
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+;; (unless (package-installed-p 'use-package)
+;;   (package-refresh-contents)
+;;   (package-install 'use-package))
 
-(require 'use-package)
+;; (require 'use-package)
 
 ;;;;;;;;;;;;;
 ;; load remaining packages with use-package
@@ -265,12 +279,12 @@
 (use-package cc-mode
   :defer t
   :config (progn
-    (c-add-style "my-java-style" 'my-java-style)
-    (c-add-style "my-jscript-style" 'my-jscript-style)
-    (add-hook 'java-mode-hook 'my-java-mode-hook)
-    (add-hook 'jscript-mode-hook 'my-jscript-mode-hook)
-    )
-)
+			(c-add-style "my-java-style" 'my-java-style)
+			(c-add-style "my-jscript-style" 'my-jscript-style)
+			(add-hook 'java-mode-hook 'my-java-mode-hook)
+			(add-hook 'jscript-mode-hook 'my-jscript-mode-hook)
+			)
+  )
 
 ;;;;;;;;;;;;;;
 ;; trying out magit for git
@@ -308,7 +322,7 @@
 (use-package markdown-mode 
   :ensure t
   :mode (("\\.md\\'" . gfm-mode)
-        ("\\.html\\'" . gfm-mode))
+		 ("\\.html\\'" . gfm-mode))
   )
 
 (use-package yaml-mode :ensure t
@@ -321,11 +335,21 @@
   :mode "\\.ts\\'"
   :defer t
   )
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; for eslint to be correctly setup install these packages:
+;; npm install -g --pre eslint eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react eslint-watch eslint-config-react babel-eslint
+
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; flycheck
 (use-package flycheck
   :ensure t
   :init (global-flycheck-mode)
+  :config
+  (progn
+	;;(setq flycheck-eslint-rules-directories '("c:/Users/bmerrill/AppData/Roaming"))
+	(setq flycheck-jshintrc "c:/Users/bmerrill/AppData/Roaming/.eslintrc")
+	)
   )
 
 ;;;;;;;;;;;;;;;;;;
@@ -342,6 +366,7 @@
     (setq js-indent-level 4)
     (setq js2-basic-offset 4)
     (setq js2-bounce-indent-p t)
+	(setq flycheck-enabled-checkers 'javascript-eslint)
     )
   )
 
@@ -355,11 +380,11 @@
 
 ;;;;;;;;;;;;;;;
 ;; python
-;(use-package python
-;  :ensure t
-;  :defer t
-;  :mode ("\\.py\\'" . python-mode)
-;  )
+										;(use-package python
+										;  :ensure t
+										;  :defer t
+										;  :mode ("\\.py\\'" . python-mode)
+										;  )
 
 (use-package elpy
   :ensure t
@@ -377,8 +402,8 @@
   (declare-function jedi:related-names jedi nil)
   (declare-function jedi:show-doc jedi nil)
   :bind (("C-." . jedi:goto-definition)
-	 ("C-c r" . jedi:related-names)
-	 ("C-?" . jedi:show-doc)))
+		 ("C-c r" . jedi:related-names)
+		 ("C-?" . jedi:show-doc)))
 
 ;; (use-package python
 ;;   :ensure t
@@ -407,89 +432,89 @@
     (c-basic-offset . 2)
     (c-comment-only-line-offset . (0 . 0))
     (c-offsets-alist . (
-      (inclass                 . 0)
-      (namespace-open          . 0)
-      (namespace-close         . 0)
-      (innamespace             . 0)
-      (class-open              . 0)
-      (class-close             . 0)
-      (inclass                 . 0)
-      (defun-open              . +)
-      (defun-block-intro       . 0)
-      (inline-open             . +)
-      (statement-block-intro   . 0)
-      (brace-list-intro        . +)
-      (else-clause             . -)
-      ))
+						(inclass                 . 0)
+						(namespace-open          . 0)
+						(namespace-close         . 0)
+						(innamespace             . 0)
+						(class-open              . 0)
+						(class-close             . 0)
+						(inclass                 . 0)
+						(defun-open              . +)
+						(defun-block-intro       . 0)
+						(inline-open             . +)
+						(statement-block-intro   . 0)
+						(brace-list-intro        . +)
+						(else-clause             . -)
+						))
     ))
 
 (defun my-csharp-mode-hook ()
-   (cond (window-system
-     (c-set-style "my-csharp-style")
-     (setq compilation-error-regexp-alist '(
-;C# Compiler
-;t.cs(6,18): error SC1006: Name of constructor must match name of class
-;
-      ("^\\(.+\\.cs\\)(\\([0-9]+\\)[,]\\([0-9]+\\))\\s ?: \\(error\\|warning\\) CS[0-9]+:" 1 2 3)))
-     )))
+  (cond (window-system
+		 (c-set-style "my-csharp-style")
+		 (setq compilation-error-regexp-alist '(
+										;C# Compiler
+										;t.cs(6,18): error SC1006: Name of constructor must match name of class
+										;
+												("^\\(.+\\.cs\\)(\\([0-9]+\\)[,]\\([0-9]+\\))\\s ?: \\(error\\|warning\\) CS[0-9]+:" 1 2 3)))
+		 )))
 
 ;;;;
 ;; have a java style too
 (defconst my-java-style
   '(
-  (c-basic-offset . 2)
-  (c-comment-only-line-offset . (0 . 0))
-  (c-offsets-alist . (
-    (c                     . c-lineup-C-comments)
-    (inclass               . 0)
-    (namespace-open        . 0)
-    (namespace-close       . 0)
-    (innamespace           . 0)
-    (class-open            . 0)
-    (class-close           . 0)
-    (inclass               . 0)
-    (defun-open            . +)
-    (defun-block-intro     . 0)
-    (inline-open           . +)
-    (statement-block-intro . 0)
-    (brace-list-intro      . +)
-    (else-clause           . -)
-    ))
-  ))
- 
+	(c-basic-offset . 2)
+	(c-comment-only-line-offset . (0 . 0))
+	(c-offsets-alist . (
+						(c                     . c-lineup-C-comments)
+						(inclass               . 0)
+						(namespace-open        . 0)
+						(namespace-close       . 0)
+						(innamespace           . 0)
+						(class-open            . 0)
+						(class-close           . 0)
+						(inclass               . 0)
+						(defun-open            . +)
+						(defun-block-intro     . 0)
+						(inline-open           . +)
+						(statement-block-intro . 0)
+						(brace-list-intro      . +)
+						(else-clause           . -)
+						))
+	))
+
 (defun my-java-mode-hook ()
   (cond (window-system
-	 (c-set-style "my-java-style")
-	 )))
- 
+		 (c-set-style "my-java-style")
+		 )))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; add a jscript style
 (defconst my-jscript-style
   '(
-  (c-basic-offset . 2)
-  (c-comment-only-line-offset . (0 . 0))
-  (c-offsets-alist . (
-    (c                     . c-lineup-C-comments)
-    (inclass               . 0)
-    (namespace-open        . 0)
-    (namespace-close       . 0)
-    (innamespace           . 0)
-    (class-open            . 0)
-    (class-close           . 0)
-    (inclass               . 0)
-    (defun-open            . +)
-    (defun-block-intro     . 0)
-    (inline-open           . +)
-    (statement-block-intro . 0)
-    (brace-list-intro      . +)
-    (else-clause           . -)
-    ))
-  ))
- 
+	(c-basic-offset . 2)
+	(c-comment-only-line-offset . (0 . 0))
+	(c-offsets-alist . (
+						(c                     . c-lineup-C-comments)
+						(inclass               . 0)
+						(namespace-open        . 0)
+						(namespace-close       . 0)
+						(innamespace           . 0)
+						(class-open            . 0)
+						(class-close           . 0)
+						(inclass               . 0)
+						(defun-open            . +)
+						(defun-block-intro     . 0)
+						(inline-open           . +)
+						(statement-block-intro . 0)
+						(brace-list-intro      . +)
+						(else-clause           . -)
+						))
+	))
+
 (defun my-jscript-mode-hook ()
   (cond (window-system
-	 (c-set-style "my-jscript-style")
-	 )))
+		 (c-set-style "my-jscript-style")
+		 )))
 
 (use-package csharp-mode
   :ensure t
