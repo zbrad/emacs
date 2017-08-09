@@ -84,6 +84,13 @@
 										;(setq frame-title-format "Emacs: %b %+%+ %f")
   (setq frame-title-format "%b%+ %f")
 
+  (setq default-frame-alist '(
+                              (font . "Inconsolata-14.5")
+                              (height . 40)
+                              (width . 100)
+                              (title-format . "%b%+ %f")
+                              ))
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; key bindings (no package dependencies)
 
@@ -152,7 +159,7 @@
   (define-key menu-bar-tools-menu [vc] nil)      ; Remove VC
   (define-key menu-bar-tools-menu [games] nil)   ; Remove games menu
   (setq confirm-kill-emacs 'yes-or-no-p)	 ; confirm quit
-  (setq-default indent-tabs-mode nil)	; always use spaces
+  ;;  (setq-default indent-tabs-mode nil)	         ; always use spaces
 
   ;;;;;;;;;;;;;;;;;;;
   ;; Font mode settings
@@ -178,7 +185,7 @@
 
   ;;;;;;;;;;;;;
   ;; compile
-  (setq-default compile-command "nmake")
+  ;;(setq-default compile-command "nmake")
 
   ;;(setq-default compile-command "e:/sd_orcas/tools/razzle no_sdrefresh exec Build -cZ -x86")
   ;;(setq-default compile-command "e:/sd_lh/tools/razzle no_oacr exec Build -cZP")
@@ -227,8 +234,12 @@
 ;;(setq explicit-shell-file-name "e:/sd_orcas/tools/razzle")
 ;;(setq explicit-razzle-args '( "debug" ))
 
-(setq explicit-shell-file-name "cmdproxy")
-(setq shell-file-name "cmdproxy")
+;;(setq explicit-shell-file-name "cmdproxy")
+;;(setq shell-file-name "cmdproxy")
+;; C:\msys64\usr\bin\mintty.exe
+
+;;(setq explicit-shell-file-name "C:/msys64/usr/bin/mintty.exe")
+;;(setq shell-file-name "mintty")
 
 ;;;;;;;;;;;;;
 ;; useful if you want to set additional start options (env vars, etc)
@@ -262,7 +273,11 @@
 
 ;;;;;;;;;;;;;;;;
 ;; bootstrap use-package
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives
+             '("elpy" . "https://jorgenschaefer.github.io/packages/"))
+
 (setq package-enable-at-startup nil)
 (package-initialize)
 ;; (unless (package-installed-p 'use-package)
@@ -355,6 +370,57 @@
 	(setq flycheck-enabled-checkers 'javascript-eslint)
     )
   )
+
+;;;;;;;;;;;;;;;
+;; css mode
+(use-package css-mode
+  :ensure t
+  :defer t
+  :mode ("\\.scss\\'" "\\.sass\\'")
+  )
+
+;;;;;;;;;;;;;;;
+;; python
+										;(use-package python
+										;  :ensure t
+										;  :defer t
+										;  :mode ("\\.py\\'" . python-mode)
+										;  )
+
+(use-package elpy
+  :ensure t
+  :config
+  (progn
+    (setq elpy-rpc-python-command "c:/python3/python")
+    (setq elpy-rpc-backend "jedi")
+    (add-hook 'python-mode-hook 'jedi:setup)
+    (elpy-enable)
+    ))
+
+(use-package jedi
+  :preface
+  (declare-function jedi:goto-definition jedi nil)
+  (declare-function jedi:related-names jedi nil)
+  (declare-function jedi:show-doc jedi nil)
+  :bind (("C-." . jedi:goto-definition)
+		 ("C-c r" . jedi:related-names)
+		 ("C-?" . jedi:show-doc)))
+
+;; (use-package python
+;;   :ensure t
+;;   :mode ("\\.py" . python-mode)
+;;   :config
+;;   (use-package elpy
+;;     :ensure t
+;;     :commands elpy-enable
+;;     :config
+;;     (setq elpy-rpc-python-command "python3"
+;; 	  elpy-modules (dolist (elem '(elpy-module-highlight-indentation
+;; 				       elpy-module-yasnippet))
+;; 			 (remove elem elpy-modules)))
+;;     (elpy-use-ipython))
+;;   (elpy-enable)
+;;   (add-hook 'python-mode-hook #'smartparens-strict-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;              C# Mode support
